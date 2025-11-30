@@ -6,7 +6,7 @@ FAT32 ドライブを直接読み取り、削除済みディレクトリエン�
 ## 主なスキル・技術ポイント
 - **ディレクトリツリーの逆引き**：先頭クラスタから親ディレクトリを辿り、Excel の各行へフルパスを書き戻し。
 
-```21:90:undelete.py
+```undelete.py
 def lookup_path(excel_file_path: str):
     wb = openpyxl.load_workbook(excel_file_path)
     ws = wb.active
@@ -20,7 +20,7 @@ def lookup_path(excel_file_path: str):
 
 - **クラスタチェーン追跡と復元**：クラスタ番号を辿ってファイルを再構築し、Excel で指定した更新日時へ `os.utime` で揃えます。
 
-```99:156:undelete.py
+```undelete.py
 def salvage_file(excel_file_path: str):
     ...
     while file_size_rest > 0:
@@ -36,7 +36,7 @@ def salvage_file(excel_file_path: str):
 
 - **FAT32 生データ解析**：ブートセクタからパラメータを抽出し、LFN(長いファイル名) や復旧対象拡張子フィルタを考慮しながら 32 バイトごとのエントリを解析。
 
-```277:524:undelete.py
+```undelete.py
 def read_raw_data(drive_letter: str, target_exts: List[str], xlsx_file: str):
     drive_path = f"\\\\.\\{drive_letter}:"
     ...
@@ -56,7 +56,7 @@ def read_raw_data(drive_letter: str, target_exts: List[str], xlsx_file: str):
 
 - **堅牢な CLI 設計**：`argparse` の排他的グループでスキャン／復元モードを切り替え、拡張子や Excel 出力先を柔軟に指定可能。
 
-```538:571:undelete.py
+```undelete.py
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="FAT32ドライブからデータを復旧")
     parser.add_argument("--target_drive", "-t", type=str, required=True, ...)
@@ -83,6 +83,4 @@ if __name__ == "__main__":
 - LFN チェーンの正規化、Shift_JIS→UTF-16LE デコード、制御文字除去など日本語ファイル名の復元精度を高める工夫。
 - Excel 連携を通じて、調査・復旧のワークフローを GUI で可視化。
 - CLI オプションで拡張子フィルタや実行モードを切替でき、バッチ運用も容易。
-
-この README をそのままポートフォリオに添付すれば、低レベルファイルシステム解析からユーザビリティまで一貫して設計できるスキルを示せます。
 

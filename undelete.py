@@ -262,12 +262,14 @@ def get_next_cluster(drive_letter: str, cluster_number: int) -> int:
 
     with open(drive_path, "rb") as f:
         # 読み込むデータサイズ (1MB = 1024 * 1024 バイト)
-        READ_SIZE = 1024 * 1024
-        raw_data = f.read(READ_SIZE)
+        # raw_data = f.read(READ_SIZE)
         # offset = RESERVED_SECTORS * BYTES_PER_SECTOR + cluster_number * 4
-        offset = RESERVED_SECTORS * BYTES_PER_SECTOR - 512
+        # READ_SIZE = RESERVED_SECTORS * BYTES_PER_SECTOR - 512
+        offset = RESERVED_SECTORS * BYTES_PER_SECTOR - 1024
         f.seek(offset)
-        f.read(512 + cluster_number * 4)
+        f.read(1024)
+        # f.read(512 + cluster_number * 4)
+        f.read(cluster_number * 4)
         next_cluster = unpack("<I", f.read(4))[0]
         # 6. FAT32の予約ビットをクリア (上位4ビットを無視)
         next_cluster &= FAT32_CLUSTER_MASK
